@@ -1,8 +1,24 @@
+using System.Reflection;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using SimpleNotes.Database;
+using SimpleNotes.Repositories;
+using SimpleNotes.Services;
+using SimpleNotes.Validation;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Db_Postgres")));
+
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+builder.Services.AddScoped<INotesRepository, NotesRepository>();
+builder.Services.AddScoped<INotesService, NotesService>();
+builder.Services.AddScoped<IRequestValidator, RequestValidator>();
 
 var app = builder.Build();
 
@@ -23,4 +39,12 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-app.Run();
+try
+{
+    app.ApplyMigrations();
+    app.Run();
+}   
+catch (Exception ex)
+{
+    throw;
+}
