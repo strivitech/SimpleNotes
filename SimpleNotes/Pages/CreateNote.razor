@@ -1,9 +1,16 @@
 ﻿@page "/CreateNote"
-@using SimpleNotes.Data
-@using System.Text.Json
+@using SimpleNotes.Contracts
+@using SimpleNotes.PageModels
+@using SimpleNotes.Services
 @inject NavigationManager NavigationManager
+@inject INotesService NotesService
 
 <h3>Create Note</h3>
+
+@if (!string.IsNullOrEmpty(_alertMessage))
+{
+    <Alert IsSuccess="@_isSuccess" AlertMessage="@_alertMessage" />
+}
 
 <div class="edit-form-container">
     <EditForm Model="@_newNote" OnValidSubmit="CreateNoteAction">
@@ -14,27 +21,41 @@
             <label for="title">Title</label>
             <InputText id="title" class="form-control" @bind-Value="_newNote.Title" />
         </div>
-        
+
         <div class="form-group">
             <label for="content">Content</label>
             <InputTextArea id="content" class="form-control" @bind-Value="_newNote.Content" />
         </div>
-        
+
         <button type="submit" class="btn btn-primary">Create</button>
     </EditForm>
+    
 </div>
 
 @code {
     private NoteModel _newNote = new();
+    private string _alertMessage = "";
+    private bool _isSuccess;
+    
+    private async Task CreateNoteAction()
+    {
+        var createNoteRequest = new CreateNoteRequest(Title: _newNote.Title, Content: _newNote.Content);
+        var response = await NotesService.CreateAsync(createNoteRequest);
 
-    private void CreateNoteAction()
-    {   
-        _newNote = new NoteModel
+        if (!response.IsError)
         {
-            CreatedAt = DateTime.Now,
-            Id = Guid.NewGuid()
-        };
-        Console.WriteLine(JsonSerializer.Serialize(_newNote));
-        NavigationManager.NavigateTo("/");
+            _alertMessage = "Note created successfully";
+            _isSuccess = true;
+            StateHasChanged();
+            await Task.Delay(2000);
+            
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            _alertMessage = response.FirstError.Description;
+            _isSuccess = false;
+            StateHasChanged();
+        }
     }
 }

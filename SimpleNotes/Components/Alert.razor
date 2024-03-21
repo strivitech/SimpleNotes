@@ -1,0 +1,13 @@
+﻿@if (!string.IsNullOrEmpty(AlertMessage))
+{
+    <div class="alert @(IsSuccess ? "alert-success" : "alert-danger")" role="alert">
+        @AlertMessage
+    </div>
+}
+
+@code 
+{
+    [Parameter] public string AlertMessage { get; set; } = null!;
+
+    [Parameter] public bool IsSuccess { get; set; }
+}
