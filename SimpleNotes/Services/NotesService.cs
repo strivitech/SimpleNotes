@@ -47,7 +47,7 @@ public class NotesService : INotesService
             return errorList;
         }
         
-        var notes = await _notesRepository.GetPreviewsAsync(request.Page, request.PageSize);
+        var notes = await _notesRepository.GetPreviewsAsync(request.Page, request.PageSize, request.SearchQuery);
         return notes.Match<ErrorOr<List<GetPreviewNoteResponse>>>(
             list => list.Select(note => new GetPreviewNoteResponse(note.Id, note.Title, note.CreatedAt)).ToList(),
             error => error

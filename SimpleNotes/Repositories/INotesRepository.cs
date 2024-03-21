@@ -6,8 +6,8 @@ namespace SimpleNotes.Repositories;
 public interface INotesRepository
 {
     Task<ErrorOr<Guid>> CreateAsync(Note note);
-    
-    Task<ErrorOr<List<Note>>> GetPreviewsAsync(int page, int pageSize);
+
+    Task<ErrorOr<List<Note>>> GetPreviewsAsync(int page, int pageSize, string? searchText = null);
     
     Task<ErrorOr<Note>> GetByIdAsync(Guid id);
     

@@ -57,3 +57,26 @@ main {
         padding-right: 1.5rem !important;
     }
 }
+
+input[type="text"] {
+    width: 100%; /* Full-width to fill the container */
+    max-width: 400px; /* Maximum width */
+    padding: 8px 12px; /* Padding inside the input */
+    border: 1px solid #ccc; /* Border color */
+    border-radius: 4px; /* Rounded borders */
+    background-color: white; /* Background color */
+    color: #333; /* Text color */
+    font-size: 1rem; /* Text size */
+    margin-left: 1rem; /* Margin from the left */
+    margin-right: 1rem; /* Margin from the right */
+}
+
+input[type="text"]::placeholder {
+    color: #aaa; /* Placeholder text color */
+}
+
+input[type="text"]:focus {
+    outline: none; /* Remove default focus outline */
+    border-color: #007bff; /* Focus border color, match your theme */
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); /* Optional: Add a glow effect on focus */
+}
