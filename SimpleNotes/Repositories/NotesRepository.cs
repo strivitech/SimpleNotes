@@ -33,16 +33,19 @@ public class NotesRepository : INotesRepository
         }
     }
 
-    public async Task<ErrorOr<List<Note>>> GetPreviewsAsync(int page, int pageSize)
-    {
+    public async Task<ErrorOr<List<Note>>> GetPreviewsAsync(int page, int pageSize, string? searchText = null)
+    {   
         try
         {
             await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-            var notes = await dbContext.Notes
+            var notesDbSet = dbContext.Notes;
+                
+            var notes = await WithSearchText(notesDbSet, searchText)
                 .OrderByDescending(note => note.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+            
             return notes;
         }
         catch (Exception ex)
@@ -85,5 +88,15 @@ public class NotesRepository : INotesRepository
             _logger.LogError(ex, "Failed to update note");
             return Errors.Notes.UpdateFailed(note.Id);
         }
+    }
+    
+    private IQueryable<Note> WithSearchText(IQueryable<Note> notes, string? searchText)
+    {
+        if (searchText is null)
+        {
+            return notes;
+        }
+        
+        return notes.Where(note => note.Title.Contains(searchText) || note.Content.Contains(searchText));
     }
 }
