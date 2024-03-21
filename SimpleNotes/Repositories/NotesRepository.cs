@@ -32,4 +32,58 @@ public class NotesRepository : INotesRepository
             return Errors.Notes.CreateFailed(note.Id);
         }
     }
+
+    public async Task<ErrorOr<List<Note>>> GetPreviewsAsync(int page, int pageSize)
+    {
+        try
+        {
+            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            var notes = await dbContext.Notes
+                .OrderByDescending(note => note.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            return notes;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get note previews");
+            return Errors.Notes.GetPreviewsFailed();
+        }
+    }
+
+    public async Task<ErrorOr<Note>> GetByIdAsync(Guid id)
+    {
+        try
+        {
+            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            var note = await dbContext.Notes.FindAsync(id);
+            if (note is null)
+            {
+                return Errors.Notes.NotFound(id);
+            }
+            return note;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get note");
+            return Errors.Notes.GetFailed(id);
+        }
+    }
+
+    public async Task<ErrorOr<Updated>> UpdateAsync(Note note)
+    {
+        try
+        {
+            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            dbContext.Notes.Update(note);
+            await dbContext.SaveChangesAsync();
+            return new Updated();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update note");
+            return Errors.Notes.UpdateFailed(note.Id);
+        }
+    }
 }
