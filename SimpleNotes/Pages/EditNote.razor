@@ -1,9 +1,16 @@
 ﻿@page "/EditNote/{NoteId:guid}"
-@using SimpleNotes.Data
-@using System.Text.Json
+@using SimpleNotes.Contracts
+@using SimpleNotes.PageModels
+@using SimpleNotes.Services
 @inject NavigationManager NavigationManager
+@inject INotesService NotesService
 
 <h3>Edit Note</h3>
+
+@if (!string.IsNullOrEmpty(_alertMessage))
+{
+    <Alert IsSuccess="@_isSuccess" AlertMessage="@_alertMessage" />
+}
 
 <div class="edit-form-container">
     <EditForm Model="@_newNote" OnValidSubmit="EditNoteAction">
@@ -28,29 +35,45 @@
     [Parameter] public Guid NoteId { get; set; }
 
     private NoteModel _newNote = new();
+    
+    private string _alertMessage = "";
+    private bool _isSuccess;
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        // Simulate loading the note by ID
-        var note = new NoteModel
+        var response = await NotesService.GetByIdAsync(new GetNoteByIdRequest(NoteId));
+        
+        if (!response.IsError)
         {
-            Id = NoteId,
-            Title = "Loaded Note Title",
-            Content = "Loaded note content.",
-            CreatedAt = DateTime.Now
-        };
-
-        _newNote = note;
-
-        return Task.CompletedTask;
+            _newNote = new NoteModel
+            {
+                Id = NoteId,
+                Title = response.Value.Title,
+                Content = response.Value.Content
+            };
+        }
     }
 
-    private void EditNoteAction()
+    private async Task EditNoteAction()
     {
-        // Logic to save the edited note
-        Console.WriteLine(JsonSerializer.Serialize(_newNote));
-        // Redirect back to the notes list
-        NavigationManager.NavigateTo("/NotesList");
+        var request = new UpdateNoteRequest(_newNote.Id, _newNote.Title, _newNote.Content);
+        var response = await NotesService.UpdateAsync(request);
+
+        if (!response.IsError)
+        {
+            _alertMessage = "Note edited successfully";
+            _isSuccess = true;
+            StateHasChanged();
+            await Task.Delay(2000);
+            
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            _alertMessage = response.FirstError.Description;
+            _isSuccess = false;
+            StateHasChanged();
+        }
     }
 
 }
