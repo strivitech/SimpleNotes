@@ -1,0 +1,63 @@
+.notes-container {
+    display: block;
+}
+
+.note {
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.note-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+}
+
+.note-title {
+    flex: 1;
+}
+
+.note-createdat {
+    flex: 2;
+    text-align: center;
+}
+
+.note-actions {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-view-hide, .btn-edit {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.3rem;
+    color: white;
+    cursor: pointer;
+    margin-left: 5px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.btn-view-hide {
+    background-color: #17a2b8;
+}
+
+.btn-view-hide:hover {
+    background-color: #138496;
+}
+
+.btn-edit {
+    background-color: #007bff;
+}
+
+.btn-edit:hover {
+    background-color: #0056b3;
+}
+
+.note-content {
+    padding: 0 1rem 1rem;
+}

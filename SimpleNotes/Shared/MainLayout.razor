@@ -1,0 +1,25 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu/>
+    </div>
+
+    <main>
+        @if (new Uri(NavigationManager.Uri).PathAndQuery is "/" or "/NotesList")
+        {
+            <div class="top-row px-4">
+                <button class="btn btn-primary" @onclick="NavigateToCreateNote">Create Note</button>
+            </div>
+        }
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    private void NavigateToCreateNote() => NavigationManager.NavigateTo("/CreateNote");
+}

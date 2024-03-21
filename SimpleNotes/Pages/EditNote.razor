@@ -1,0 +1,56 @@
+﻿@page "/EditNote/{NoteId:guid}"
+@using SimpleNotes.Data
+@using System.Text.Json
+@inject NavigationManager NavigationManager
+
+<h3>Edit Note</h3>
+
+<div class="edit-form-container">
+    <EditForm Model="@_newNote" OnValidSubmit="EditNoteAction">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+
+        <div class="form-group">
+            <label for="title">Title</label>
+            <InputText id="title" class="form-control" @bind-Value="_newNote.Title"/>
+        </div>
+
+        <div class="form-group">
+            <label for="content">Content</label>
+            <InputTextArea id="content" class="form-control" @bind-Value="_newNote.Content"/>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter] public Guid NoteId { get; set; }
+
+    private NoteModel _newNote = new();
+
+    protected override Task OnInitializedAsync()
+    {
+        // Simulate loading the note by ID
+        var note = new NoteModel
+        {
+            Id = NoteId,
+            Title = "Loaded Note Title",
+            Content = "Loaded note content.",
+            CreatedAt = DateTime.Now
+        };
+
+        _newNote = note;
+
+        return Task.CompletedTask;
+    }
+
+    private void EditNoteAction()
+    {
+        // Logic to save the edited note
+        Console.WriteLine(JsonSerializer.Serialize(_newNote));
+        // Redirect back to the notes list
+        NavigationManager.NavigateTo("/NotesList");
+    }
+
+}

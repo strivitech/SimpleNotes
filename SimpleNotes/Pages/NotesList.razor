@@ -1,0 +1,84 @@
+﻿@page "/NotesList"
+@using SimpleNotes.Data
+@inject NavigationManager NavigationManager
+
+<h2>Notes List</h2>
+
+@if (_notesList == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else if (_notesList.Count == 0)
+{
+    <p>No notes have been created yet.</p>
+}
+else
+{
+    <div class="notes-container">
+        @foreach (var note in _notesList)
+        {
+            <div class="note">
+                <div class="note-row">
+                    <span class="note-title">@note.Title</span>
+                    <span class="note-createdat">Created: @note.CreatedAt.ToString("yyyy-MM-dd HH:mm")</span>
+                    <div class="note-actions">
+                        <button class="btn-view-hide" @onclick="() => ToggleNoteContent(note)">
+                            @(note.IsContentVisible ? "Hide Note" : "View Note")
+                        </button>
+                        <button class="btn-edit" @onclick="() => EditNote(note)">Edit Note</button>
+                    </div>
+                </div>
+                @if (note.IsContentVisible)
+                {
+                    <div class="note-content">
+                        <p>@note.Content</p>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<NoteModel>? _notesList;
+
+    protected override Task OnInitializedAsync()
+    {
+        _notesList = new List<NoteModel>
+        {
+            new NoteModel
+            {
+                Id = Guid.NewGuid(),
+                Title = "First Note",
+                Content = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum",
+                CreatedAt = DateTime.Now.AddDays(-10)
+            },
+            new NoteModel
+            {
+                Id = Guid.NewGuid(),
+                Title = "Second Note",
+                Content = "This is the content of the second note.",
+                CreatedAt = DateTime.Now.AddDays(-5)
+            },
+            new NoteModel
+            {
+                Id = Guid.NewGuid(),
+                Title = "Third Note",
+                Content = "This is the content of the third note.",
+                CreatedAt = DateTime.Now.AddDays(-1)
+            }
+        };
+
+        // Simulate an asynchronous operation
+        return Task.CompletedTask;
+    }
+
+    private void ToggleNoteContent(NoteModel note) => note.IsContentVisible = !note.IsContentVisible;
+
+    private void EditNote(NoteModel note)
+    {
+        NavigationManager.NavigateTo($"EditNote/{note.Id}");
+    }
+}

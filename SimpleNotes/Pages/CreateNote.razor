@@ -1,0 +1,40 @@
+﻿@page "/CreateNote"
+@using SimpleNotes.Data
+@using System.Text.Json
+@inject NavigationManager NavigationManager
+
+<h3>Create Note</h3>
+
+<div class="edit-form-container">
+    <EditForm Model="@_newNote" OnValidSubmit="CreateNoteAction">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="title">Title</label>
+            <InputText id="title" class="form-control" @bind-Value="_newNote.Title" />
+        </div>
+        
+        <div class="form-group">
+            <label for="content">Content</label>
+            <InputTextArea id="content" class="form-control" @bind-Value="_newNote.Content" />
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Create</button>
+    </EditForm>
+</div>
+
+@code {
+    private NoteModel _newNote = new();
+
+    private void CreateNoteAction()
+    {   
+        _newNote = new NoteModel
+        {
+            CreatedAt = DateTime.Now,
+            Id = Guid.NewGuid()
+        };
+        Console.WriteLine(JsonSerializer.Serialize(_newNote));
+        NavigationManager.NavigateTo("/");
+    }
+}
