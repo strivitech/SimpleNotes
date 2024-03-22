@@ -16,5 +16,7 @@ public static class Errors
         public static Error GetFailed(Guid id) => Error.Failure("Note.GetFailed", $"Failed to get note with id {id.ToString()}");
         
         public static Error UpdateFailed(Guid id) => Error.Failure("Note.UpdateFailed", $"Failed to update note with id {id.ToString()}");
+        
+        public static Error CountFailed() => Error.Failure("Note.CountFailed", "Failed to count notes");
     }
 }

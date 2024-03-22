@@ -12,4 +12,6 @@ public interface INotesService
     Task<ErrorOr<GetNoteResponse>> GetByIdAsync(GetNoteByIdRequest request);
     
     Task<ErrorOr<Updated>> UpdateAsync(UpdateNoteRequest request);
+    
+    Task<ErrorOr<int>> CountAsync();
 }

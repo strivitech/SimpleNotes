@@ -89,7 +89,21 @@ public class NotesRepository : INotesRepository
             return Errors.Notes.UpdateFailed(note.Id);
         }
     }
-    
+
+    public async Task<ErrorOr<int>> CountAsync()
+    {
+        try
+        {
+            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            return await dbContext.Notes.CountAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to count notes");
+            return Errors.Notes.CountFailed();
+        }
+    }
+
     private IQueryable<Note> WithSearchText(IQueryable<Note> notes, string? searchText)
     {
         if (searchText is null)

@@ -12,4 +12,6 @@ public interface INotesRepository
     Task<ErrorOr<Note>> GetByIdAsync(Guid id);
     
     Task<ErrorOr<Updated>> UpdateAsync(Note note);
+    
+    Task<ErrorOr<int>> CountAsync();
 }
