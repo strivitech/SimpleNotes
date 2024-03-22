@@ -1,18 +1,7 @@
 ﻿@inherits LayoutComponentBase
-@inject NavigationManager NavigationManager
-@implements IDisposable
 
 <div class="page">
     <main>
-        @if (new Uri(NavigationManager.Uri).PathAndQuery == "/" || new Uri(NavigationManager.Uri).PathAndQuery.Contains("/NotesList"))
-        {
-            <div class="top-row px-4">
-                <button class="btn btn-primary" @onclick="NavigateToCreateNote">Create Note</button>
-                <input type="text" value="@_searchQuery" @oninput="HandleSearchInput" placeholder="Search notes..."/>
-                <div >Total Notes: @_totalNotes</div>
-            </div>
-        }
-
         <article class="content px-4">
             @Body
         </article>
@@ -21,32 +10,4 @@
 
 @code
 {
-    private string _searchQuery = string.Empty;
-    private int _totalNotes = 0;
-
-    private Timer? _debounceTimer;
-
-    private void HandleSearchInput(ChangeEventArgs e)
-    {
-        _searchQuery = e.Value?.ToString() ?? string.Empty;
-        DebounceSearch();
-    }
-
-    private void DebounceSearch()
-    {
-        _debounceTimer?.Dispose(); // Stop any previous timer
-        _debounceTimer = new Timer(_ => { InvokeAsync(PerformSearch); }, null, 2000, Timeout.Infinite); // Delay for 2 seconds
-    }
-
-    private void PerformSearch()
-    {
-        NavigationManager.NavigateTo($"/NotesList?Search={Uri.EscapeDataString(_searchQuery)}");
-    }
-
-    private void NavigateToCreateNote() => NavigationManager.NavigateTo("/CreateNote");
-
-    public void Dispose()
-    {
-        _debounceTimer?.Dispose();
-    }
 }

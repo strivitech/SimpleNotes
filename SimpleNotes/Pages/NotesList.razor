@@ -2,10 +2,16 @@
 @using SimpleNotes.PageModels
 @using SimpleNotes.Services
 @using SimpleNotes.Contracts
+@implements IDisposable
+
 @inject NavigationManager NavigationManager
 @inject INotesService NotesService
 
-<h2>Notes List</h2>
+<div class="top-row px-4">
+    <button class="btn btn-primary" @onclick="NavigateToCreateNote">Create Note</button>
+    <input type="text" value="@_searchQuery" @oninput="HandleSearchInput" placeholder="Search notes..."/>
+    <div >Total Notes: @_totalNotes</div>
+</div>
 
 <div class="notes-container">
     @foreach (var note in _notesList)
@@ -37,31 +43,12 @@
     private List<NoteModel> _notesList = new();
     private int _page = 0;
     private int _pageSize = 10;
+    
+    private Timer? _debounceTimer;
+    private string _searchQuery = string.Empty;
+    private int _totalNotes = 0;
 
-    [Parameter] [SupplyParameterFromQuery] public string? Search { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadMorePreviewNotes();
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        Console.WriteLine(Search);
-        _page = 0;
-        _notesList = new List<NoteModel>();
-        await LoadMorePreviewNotes();
-        StateHasChanged();
-    }
-
-    private void SetSearchQuery()
-    {
-        var uri = new Uri(NavigationManager.Uri);
-        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("Search", out var query))
-        {
-            Search = query;
-        }
-    }
+    protected override async Task OnInitializedAsync() => await LoadMorePreviewNotes();
 
     private async Task LoadContent(NoteModel note)
     {
@@ -80,13 +67,11 @@
 
     private async Task LoadMorePreviewNotes()
     {
-        SetSearchQuery();
-
         var request = new GetPreviewNotesRequest
         {
             Page = _page + 1,
             PageSize = _pageSize,
-            SearchQuery = Search
+            SearchQuery = _searchQuery
         };
 
         var notesListResponse = await NotesService.GetPreviewsAsync(request);
@@ -107,5 +92,28 @@
             }
         }
     }
+    
+    private void HandleSearchInput(ChangeEventArgs e)
+    {
+        _searchQuery = e.Value?.ToString() ?? string.Empty;
+        DebounceSearch();
+    }
 
+    private void DebounceSearch()
+    {
+        _debounceTimer?.Dispose(); // Stop any previous timer
+        _debounceTimer = new Timer(_ => { InvokeAsync(PerformSearch); }, null, 2000, Timeout.Infinite); // Delay for 2 seconds
+    }
+
+    private async Task PerformSearch()
+    {
+        _page = 0;
+        _notesList = new List<NoteModel>();
+        await LoadMorePreviewNotes();
+        StateHasChanged();
+    }
+
+    private void NavigateToCreateNote() => NavigationManager.NavigateTo("/CreateNote");
+
+    public void Dispose() => _debounceTimer?.Dispose();
 }
