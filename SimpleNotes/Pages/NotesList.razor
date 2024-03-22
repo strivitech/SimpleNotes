@@ -48,7 +48,21 @@
     private string _searchQuery = string.Empty;
     private int _totalNotes = 0;
 
-    protected override async Task OnInitializedAsync() => await LoadMorePreviewNotes();
+    protected override async Task OnInitializedAsync()
+    {
+        await SetTotalNotesCount();
+        await LoadMorePreviewNotes();
+    }
+    
+    private async Task SetTotalNotesCount()
+    {
+        var totalNotesResponse = await NotesService.CountAsync();
+        
+        if (!totalNotesResponse.IsError)
+        {
+            _totalNotes = totalNotesResponse.Value;
+        }
+    }
 
     private async Task LoadContent(NoteModel note)
     {

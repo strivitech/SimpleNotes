@@ -94,4 +94,13 @@ public class NotesService : INotesService
             error => error
         );
     }
+
+    public async Task<ErrorOr<int>> CountAsync()
+    {
+        var countResponse = await _notesRepository.CountAsync();
+        return countResponse.Match<ErrorOr<int>>(
+            count => count,
+            error => error
+        );
+    }
 }
